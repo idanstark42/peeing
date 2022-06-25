@@ -4,14 +4,73 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Peeing</title>
+<style>
+.lds-dual-ring {
+  display: inline-block;
+  width: 10rem;
+  height: 10rem;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  border: 6px solid #000;
+  border-color: #000 transparent #000 transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+body:not(.loading) .lds-dual-ring {
+  display: none;
+}
+
+body.loading #pee {
+  display: none;
+}
+
+#pee {
+  background: url('./peeing.jpg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: calc(100% - 4rem);
+  margin-right: 1rem;
+  aspect-ratio: 1;
+}
+
+</style>
 </head>
 <body class="loading">
-<button id="pee" onclick="pee()">I peed</button>
+<div id="pee" onclick="pee()"></div>
+<div class="lds-dual-ring"></div>
 <script type="text/javascript">
 const URL = 'https://api.jsonbin.io/v3/b/62b58bf5402a5b380236c7c7'
 
+const headers = {
+  'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y',
+  'Content-Type': 'application/json'
+}
+
 function load () {
-  fetch(URL, { headers: { 'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y' } })
+  fetch(URL, { headers })
     .then(response => response.json())
     .then(({ record }) => {
       document.body.classList.remove('loading')
@@ -20,13 +79,11 @@ function load () {
 }
 
 function pee () {
+  const name = document.location.search.match(/name=(.*)/)[1]
   console.log('peeing')
-  window.record['idan'] = window.record['idan'] + 1
+  window.record[name] = window.record[name] + 1
   document.body.classList.add('loading')
-  fetch(URL, { method: 'put', body: JSON.stringify(window.record), headers: {
-      'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y',
-      'Content-Type': 'application/json'
-    } })
+  fetch(URL, { method: 'put', body: JSON.stringify(window.record), headers })
     .then(response => response.json())
     .then(() => {
       document.body.classList.remove('loading')
