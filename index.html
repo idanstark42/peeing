@@ -67,6 +67,15 @@ body.loading #pee {
   font-family: system-ui;
 }
 
+.info {
+  background: #b7d7fc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #003a73;
+  margin-right: 1rem;
+  font-family: system-ui;
+}
+
 .error {
   background: #fcb7b7;
   padding: 1rem;
@@ -84,6 +93,7 @@ body.loading #pee {
 <script type="text/javascript">
 const URL = 'https://api.jsonbin.io/v3/b/62b58bf5402a5b380236c7c7'
 const MESSAGE_TIMEOUT = 1000
+const FIVE_MINUTES = 5 * 60 * 1000
 
 const headers = {
   'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y',
@@ -100,9 +110,16 @@ function load () {
 }
 
 function pee () {
-  const name = document.location.search.match(/name=(.*)/)[1]
   console.log('peeing')
-  window.record[name] = window.record[name] + 1
+  const name = document.location.search.match(/name=(.*)/)[1]
+  const last = window.record[name][window.record[name].length - 1]
+  const now = Date.now()
+  if (now - last <= FIVE_MINUTES) {
+    document.body.innerHTML = document.body.innerHTML + `<div class='info'>Wait five minutes, only ${Math.floor((FIVE_MINUTES - (now - last)) / 1000)} seconds left</div>`
+    setTimeout(() => { document.getElementsByClassName('info')[0].remove() }, MESSAGE_TIMEOUT)
+    return
+  }
+  window.record[name].push(Date.now())
   document.body.classList.add('loading')
   fetch(URL, { method: 'put', body: JSON.stringify(window.record), headers })
     .then(response => response.json())
