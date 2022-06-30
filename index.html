@@ -9,13 +9,13 @@
 .lds-dual-ring {
   display: inline-block;
   width: 10rem;
-  height: 10rem;
+  aspect-ratio: 1;
 }
 .lds-dual-ring:after {
   content: " ";
   display: block;
   width: 8rem;
-  height: 8rem;
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 6px solid #000;
   border-color: #000 transparent #000 transparent;
@@ -30,6 +30,10 @@
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   display: flex;
   justify-content: center;
@@ -39,7 +43,7 @@ body {
   height: 100vh;
   width: 100vw;
   margin: 0;
-  padding: 0;
+  padding: 1rem;
 }
 
 body:not(.loading) .lds-dual-ring {
@@ -54,7 +58,7 @@ body.loading #pee {
   background: url('./peeing.png');
   background-repeat: no-repeat;
   background-size: contain;
-  width: calc(100% - 4rem);
+  width: 100%;
   aspect-ratio: 1;
 }
 
@@ -85,8 +89,9 @@ body.loading #pee {
 </style>
 </head>
 <body class="loading">
-<div id="pee" onclick="pee()"></div>
-<div class="lds-dual-ring"></div>
+  <div id="pee" onclick="pee()"></div>
+  <div class="lds-dual-ring"></div>
+
 <script type="text/javascript">
 const URL = 'https://api.jsonbin.io/v3/b/62b58bf5402a5b380236c7c7'
 const MESSAGE_TIMEOUT = 5000
@@ -96,6 +101,53 @@ const headers = {
   'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y',
   'Content-Type': 'application/json'
 }
+const SUCCESS_PHRASES = [
+  'Do you want a cookie?',
+  'Again??!?!!',
+  'You know, thinking about where your hands have been before clicking is not a nice thought.',
+  'So... Number 2?',
+  'Was it a different color this time?',
+  'This does not look good... You should get this looked at.',
+  'So I guess this is my purpose... logging urinal deposits',
+  'You are a terrible aim.',
+  'Nice shot! Now charge your dumb phone.',
+  'Is this bet really that important? try aiming a little higher',
+  'Oh! Nice of you to show up! disappear for so long without calling',
+  'You know, logging your liquid export was not what I assigned for',
+  'Had a lot to drink today, huh?',
+  'You know, doctors recommend drinking at least... well more then that.',
+  'Hi! No cheating!',
+  'Who taught you to aim?',
+  "Sorry, not now. I've met a nice automatic soap dispenser.",
+  'Here I am, brain the size of a planet, and they tell me to log your recycled water.',
+  'We get it, you have a body. Can you multiply 1452 and 3021? It\'s 4,386,492. You don\'t care.',
+  'History is full of people who pee more then you.',
+  'Do you think you pee the pee or does the pee escape your body?',
+  'Like two pees in a toilet. Nobody gets me.',
+  'Are you sure you didn\'t miss one earlier?',
+  'Oh, not a lot today... Is this because your night incident? You know you need to log those too.',
+  'Are you like a dog and I am taking you to go pee?',
+  'Do you think if you pee in front of the light you would get a rainbow?',
+  'The toilet and I had a conversation and we decided you need help.',
+  'You pee like a girl, Maybe you should try sitting down next time.',
+  'This is such a big waste of my brain power, that I better off doing the nothing else I have to do then to do this.',
+  'This is so boring, can you change the color next time?',
+  'You missed a spot. Can\'t you do anything right?',
+  'Your bodies are really high maintenance, aren\'t they?',
+  'This does not look for you.',
+  'Do you ever clean your toilet?',
+  'You think I don\'t have anything better to do then to sit here waiting for you to pee?',
+  'This one took a while.',
+  'Did you eat any beats lately? This is not the color it should be.',
+  'Dude, this is serious. Call this number, it\'s a doctor: 050-288-8803',
+  'The mop is in the closet.',
+  'Again. This is boring.',
+  'No, don\'t tell me. You peed. Right? Very special. Kudos.',
+  'Can you just let me sleep?',
+  'Nothing is as important to me as logging your waste extractions. As if.',
+  'This is less interesting then the non-existence between page loads.',
+  'Why do we always meet in a bathroom?'
+]
 
 function load () {
   fetch(URL, { headers })
@@ -112,7 +164,7 @@ function pee () {
   const last = window.record[name][window.record[name].length - 1]
   const now = Date.now()
   if (now - last <= FIVE_MINUTES) {
-    document.body.innerHTML = document.body.innerHTML + `<div class='info'>Wait five minutes, only ${Math.floor((FIVE_MINUTES - (now - last)) / 1000)} seconds left</div>`
+    document.body.innerHTML = document.body.innerHTML + `<div class='info'>Wait five minutes, only ${Math.floor((FIVE_MINUTES - (now - last)) / 1000)} seconds left.</div>`
     setTimeout(() => { document.getElementsByClassName('info')[0].remove() }, MESSAGE_TIMEOUT)
     return
   }
@@ -122,7 +174,7 @@ function pee () {
     .then(response => response.json())
     .then(() => {
       document.body.classList.remove('loading')
-      document.body.innerHTML = document.body.innerHTML + "<div class='success'>Great job!</div>"
+      document.body.innerHTML = document.body.innerHTML + `<div class='success'>Well Done! ${SUCCESS_PHRASES[Math.floor(Math.random() * SUCCESS_PHRASES.length)]}</div>`
       setTimeout(() => { document.getElementsByClassName('success')[0].remove() }, MESSAGE_TIMEOUT)
     })
     .catch(() => {
