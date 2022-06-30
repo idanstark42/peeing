@@ -96,6 +96,7 @@ body.loading #pee {
 const URL = 'https://api.jsonbin.io/v3/b/62b58bf5402a5b380236c7c7'
 const MESSAGE_TIMEOUT = 5000
 const FIVE_MINUTES = 5 * 60 * 1000
+const START_DATE = '07/01/2022'
 
 const headers = {
   'X-MASTER-KEY': '$2b$10$Lw09gQUrspnNHvBnUhhYaeCZ0Ld9r8.0YAtnCZl1iKd.r43CJQ68y',
@@ -174,7 +175,8 @@ function pee () {
     .then(response => response.json())
     .then(() => {
       document.body.classList.remove('loading')
-      document.body.innerHTML = document.body.innerHTML + `<div class='success'>Well Done! ${SUCCESS_PHRASES[Math.floor(Math.random() * SUCCESS_PHRASES.length)]}</div>`
+      const message = 'Well Done! ' + ((new Date() > new Date(START_DATE)) ? SUCCESS_PHRASES[Math.floor(Math.random() * SUCCESS_PHRASES.length)] : '')
+      document.body.innerHTML = document.body.innerHTML + `<div class='success'>${message}</div>`
       setTimeout(() => { document.getElementsByClassName('success')[0].remove() }, MESSAGE_TIMEOUT)
     })
     .catch(() => {
