@@ -88,7 +88,7 @@ body.loading #pee {
 
 </style>
 </head>
-<body class="loading">
+<body>
   <div id="pee" onclick="pee()"></div>
   <div class="lds-dual-ring"></div>
 
@@ -151,7 +151,7 @@ const SUCCESS_PHRASES = [
 ]
 
 function load () {
-  fetch(URL, { headers })
+  return fetch(URL, { headers })
     .then(response => response.json())
     .then(({ record }) => {
       document.body.classList.remove('loading')
@@ -161,30 +161,34 @@ function load () {
 
 function pee () {
   console.log('peeing')
-  const name = document.location.search.match(/name=(.*)/)[1]
-  const last = window.record[name][window.record[name].length - 1]
-  const now = Date.now()
-  if (now - last <= FIVE_MINUTES) {
-    document.body.innerHTML = document.body.innerHTML + `<div class='info'>Wait five minutes, only ${Math.floor((FIVE_MINUTES - (now - last)) / 1000)} seconds left.</div>`
-    setTimeout(() => { document.getElementsByClassName('info')[0].remove() }, MESSAGE_TIMEOUT)
-    return
-  }
-  window.record[name].push(Date.now())
   document.body.classList.add('loading')
-  fetch(URL, { method: 'put', body: JSON.stringify(window.record), headers })
+  load().then(() => {
+    const name = document.location.search.match(/name=(.*)/)[1]
+    const last = window.record[name][window.record[name].length - 1]
+    const now = Date.now()
+    if (now - last <= FIVE_MINUTES) {
+      throw { message: 'Too Early', time: Math.floor((FIVE_MINUTES - (now - last)) / 1000) }
+    }
+    window.record[name].push(Date.now())
+  })
+    .then(() => fetch(URL, { method: 'put', body: JSON.stringify(window.record), headers }))
     .then(response => response.json())
     .then(() => {
-      document.body.classList.remove('loading')
       const message = 'Well Done! ' + ((new Date() > new Date(START_DATE)) ? SUCCESS_PHRASES[Math.floor(Math.random() * SUCCESS_PHRASES.length)] : '')
       document.body.innerHTML = document.body.innerHTML + `<div class='success'>${message}</div>`
       setTimeout(() => { document.getElementsByClassName('success')[0].remove() }, MESSAGE_TIMEOUT)
     })
-    .catch(() => {
-      document.body.innerHTML = "<div class='error'>Didn't work... tell Idan that he's an idiot</div>"
+    .catch(error => {
+      if (error.message && error.message === 'Too Early') {
+        document.body.innerHTML = document.body.innerHTML + `<div class='info'>Wait five minutes, only ${error.time} seconds left.</div>`
+        setTimeout(() => { document.getElementsByClassName('info')[0].remove() }, MESSAGE_TIMEOUT)
+      } else {
+        document.body.innerHTML = "<div class='error'>Didn't work... tell Idan that he's an idiot</div>"
+      }
     })
+    .then(() => 
+      document.body.classList.remove('loading'))
 }
-
-load()
 </script>
 </body>
 </html>
